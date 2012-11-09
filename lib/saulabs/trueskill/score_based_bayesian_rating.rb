@@ -105,14 +105,14 @@ module Saulabs
 
         @teams[0].map{|rating|
           precision = 1.0 / rating.variance + 1.0/ ( n_all * @beta_squared + 2.0 * @gamma_squared + var_team_2 / n_team_2 + var_team_1 / n_team_1 - rating.variance / n_team_1)
-          precision_mean = rating.mean / rating.variance + (@scores[0] - @scores[1] + n_team_1 * (mean_team_2 / n_team_2 - mean_team_1 / n_team_1 + rating.mean / n_team_1)) / ( n_all * @beta_squared +  @gamma_squared + var_team_2 / n_team_2 + var_team_1 / n_team_1 - rating.variance / n_team_1)
+          precision_mean = rating.mean / rating.variance + (@scores[0] - @scores[1] + n_team_1 * (mean_team_2 / n_team_2 - mean_team_1 / n_team_1 + rating.mean / n_team_1)) / ( n_all * @beta_squared +  2.0 * @gamma_squared + var_team_2 / n_team_2 + var_team_1 / n_team_1 - rating.variance / n_team_1)
           partial_updated_precision = rating.precision + rating.activity*( precision - rating.precision)
           partial_updated_precision_mean =  rating.precision_mean + rating.activity * (precision_mean - rating.precision_mean)
           rating.replace(Gauss::Distribution.new(partial_updated_precision_mean / partial_updated_precision, (1.0 / partial_updated_precision + rating.tau_squared)**0.5))
         }
         @teams[1].map{|rating|
           precision = 1.0 / rating.variance + 1.0 / (n_all*@beta_squared + 2.0 * @gamma_squared + var_team_1 / n_team_1 + var_team_2 / n_team_2 - rating.variance / n_team_2)
-          precision_mean = rating.mean / rating.variance + (@scores[1] - @scores[0] + n_team_2 * (mean_team_1 / n_team_1 - mean_team_2 / n_team_2 + rating.mean / n_team_2)) / ( n_all * @beta_squared +  @gamma_squared + var_team_1 / n_team_1 + var_team_2/n_team_2 - rating.variance / n_team_2)
+          precision_mean = rating.mean / rating.variance + (@scores[1] - @scores[0] + n_team_2 * (mean_team_1 / n_team_1 - mean_team_2 / n_team_2 + rating.mean / n_team_2)) / ( n_all * @beta_squared +  2.0 * @gamma_squared + var_team_1 / n_team_1 + var_team_2/n_team_2 - rating.variance / n_team_2)
           partial_updated_precision = rating.precision + rating.activity*( precision - rating.precision)
           partial_updated_precision_mean =  rating.precision_mean + rating.activity * (precision_mean - rating.precision_mean)
           rating.replace(Gauss::Distribution.new(partial_updated_precision_mean / partial_updated_precision, (1.0 / partial_updated_precision + rating.tau_squared)**0.5))
