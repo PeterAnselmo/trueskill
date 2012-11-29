@@ -89,7 +89,9 @@ module Saulabs
 
     def update_skills
         
-        #UNTIL NOW: only works for non-additive skills
+        #Code should work in general case, but has, however, only been tested for the cased 1vs1,1vs2,1vs3,2vs2
+        #for these cases, the analytical solution has been calculated and generalized
+        
         n_1    = @skills_additive ? 1 : @teams[0].size.to_f
         n_2    = @skills_additive ? 1 : @teams[1].size.to_f
         n_max  = [n_1 , n_2].max
