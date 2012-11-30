@@ -5,54 +5,55 @@
   
 \begin{document}
 
-\title{Introduction to \LaTeX{}}
-\author{Author's Name}
+\author{Markus D\"uttmann}
 
 
 
-\section{Analytical solution of the score-based Bayesian rating approach}
+\section{Analytical Solution of the Score-Based Bayesian Rating Approach}
 
 
 
-\subsection{General}
+\subsection{Model}
 
-Our starting point is a game with the outcome $\Delta s$. Involved are $n$ teams and $m$ players. 
+A score-based Bayesian rating method is used to model the skills of players in a game. The game consists of $n$ teams and $m$ players. It is defined by its outcome $\Delta s$. The aim is to estimate the skill distribution $p(\mathbf{l})$. 
 
-
-The general idea is to find the probability for the skills: 
+The individual player skills $l_i$ are assumed to be independent characteristics of the player's ability to score
 \begin{equation}
-p(\mathbf{l}) = \prod_i p(l_i)\, ,
+p(\mathbf{l}) = \prod_i p(l_i)\, .
 \end{equation}
-which are assumed to be independent. 
 
-
-The probability  distribution $p((l_i;\mu_i,\sigma_i)$ is estimated from the game outcomes. A game outcome is measured in the score difference $\Delta s$ = score(team1) - score(team2). After every game, the conditional probability 
+The score-based Bayesian rating method updates its skill estimate after each game according to the outcome. The conditional probability 
 \begin{equation}
 p(\mathbf{l} | \Delta s) 
 \end{equation}
 is used as the new estimate for the skills.
 
-Using the Bayes theorem, we can write
+Using the Bayes theorem, one can write
 \begin{equation}
 p(\mathbf{l} | \Delta s) \propto p( \Delta s | \mathbf{l} ) p(\mathbf{l})
 \end{equation}
 
 This equation can be alternatively stated as a Hidden Markov model using following considerations
 \begin{itemize}
-\item the player performance $p_i$ is uniquely determined by the player's skill $l_i$
+\item the player performance $p_i$ is determined by the player's skill $l_i$
 \item the individual players performances determine the overall team performance $t_i$
 \item the differences in the team performances are described as the performance differences $d$
-\item the performance difference determines the game outcome, i.e. the score difference $\Delta s$
+\item the performance difference determines the game outcome, i.e. the score difference $\Delta s$.
 \end{itemize}
 
 Thus, we can look at processes
 \begin{equation}
 p(\Delta s | d) p(d | \mathbf{t} ) p(\mathbf{t} | \mathbf{p} ) p(\mathbf{p} | \mathbf{l}) p(\mathbf{l})
+\label{process}
 \end{equation}
-
-Using such intermediate processes, one can describe $p(\mathbf{l} | \Delta s)$ by integrating out the intermediate variables $d$, $\mathbf{t}$ and $\mathbf{p}$. Thus, we get
+Using these, one can describe $p(\mathbf{l} | \Delta s)$ by integrating out the intermediate variables $d$, $\mathbf{t}$ and $\mathbf{p}$. Thus, we get
+\begin{equation}
+p(\Delta s | \mathbf{l} | ) = \int_{-\infty}^{\infty} dd \int d^n t \int d^mp~ p(\Delta s | d) p(d | \mathbf{t} ) p(\mathbf{t} | \mathbf{p} ) p(\mathbf{p} | \mathbf{l}) .
+\end{equation}
+Using (\ref{process}), we obtain the skill estimate
 \begin{equation}
 p(\mathbf{l} | \Delta s) = \int_{-\infty}^{\infty} dd \int d^n t \int d^mp~ p(\Delta s | d) p(d | \mathbf{t} ) p(\mathbf{t} | \mathbf{p} ) p(\mathbf{p} | \mathbf{l}) p(\mathbf{l}).
+\label{integral}
 \end{equation}
 
 
@@ -60,72 +61,69 @@ p(\mathbf{l} | \Delta s) = \int_{-\infty}^{\infty} dd \int d^n t \int d^mp~ p(\D
 
 The skills $l_i$ are assumed to be independent and Gaussian distributed, i.e.
 \begin{equation}
-p(\mathbf{l}) = \prod_i \mathcal{N}(l_i;\mu_i,\sigma_i)
+p(l_i) =\mathcal{N}(l_i;\mu_i,\sigma_i) \,.
 \end{equation}
+They are described by their mean $\mu_i$ and the corresponding standard deviation $\sigma_i$. 
 
-The game outcome $\Delta s$ is assumed to arise from the differences in the team performances 
+The player performance of a player may depend on various things, depending, for instance, on the specific game setup or his condition. Therefore, the performance should be described as a random process described by its probability function 
 \begin{equation}
-p(\Delta s | d ) = \mathcal{N}(s; d, \gamma)
+p(p_i | l_i) = \mathcal{N}(p_i; l_i, \beta)\,.
 \end{equation}
-where $\gamma$ is the variance of the game outcome (should easily be obtained from existing game data). 
+The standard deviation $\beta$ quantifies the uncertainties in predicting the player's performance. 
 
-In a smilier way, the probability $p(\Delta s | d )$ can be described as 
+Furthermore, the game outcome $\Delta s$ is assumed to be a random process. It arises mainly due to the performance differences of the teams. It can be described as 
 \begin{equation}
-p(\Delta s | d ) = \mathcal{N}(s; d, \beta).
+p(\Delta s | d ) = \mathcal{N}(s; d, \gamma)\, ,
 \end{equation}
+where $\gamma$ is the variance of the game outcome and should easily be obtained from existing game data. 
 
 
 
 
-\subsection{Teams and team performances}
+\subsection{Teams and Team Performances}
 
-Skills can be additive or non-additive. Additive skills are seen in games like Halo or soccer. In such games, more players in a team lead to a higher overall skill.
+Are more players better all the time? This certainly is the case in games like Halo or even soccer. In such games, more players in a team lead to a higher overall skill. Thus, the skills are additive. 
 
-Quite contrary is the case in games like several card games. Here, more players does not mean more skill in a team. A good example is the German game Skat. Here, three players compete and, interestingly, the player who plays alone has a higher winning probability. 
+Quite contrary is the case in certain games, e.g. card games like Skat or Briddge. Here, more players do not necessarily lead to a stronger team. A good example is indeed the German game Skat. Here, three players compete and, interestingly, the player who plays alone has a higher winning probability. In such cases, the skills are non-additive and teams must be described in a different way. 
 
-As will be seen below, the additive and non-additive skills will be described slightly different. 
+The specific game setup is defined by the teams. They are encoded in the the probabilities $ p(d | \mathbf{t} )$ and $ p(\mathbf{t} | \mathbf{p} )$, which depend on the time size on the nature of the game (additive or non-additive). Below, I will give examples how to obtain these probability functions. 
 
-The probabilities $ p(d | \mathbf{t} )$ and $ p(\mathbf{t} | \mathbf{p} )$ depend on the time size and I will give examples how to describe them. 
-
-Lets focus on the case of two teams $t_1$ and $t_2$. Then the difference in team performances is simply
+Lets focus on the case of two teams $t_1$ and $t_2$. Then the difference in team performances is simply $d = t_1 - t_2$. The corresponding probability densities are
 \begin{equation}
 p(d | \mathbf{t} ) = \delta[d - (t_1-t_2)]
 \end{equation}
 where $\delta(..)$ is the Dirac-delta function. 
 
-How to obtain the team performances will be illustrated on an example:
+The team performances depend on the team members. In the following example, the case "1 vs 2" will be discussed:
 
-Example: 1 vs 3 
-
-Team 1 is comprised of player $i$. Team 2 is comprised of players $j$, $k$ and $l$.  Hence, we describe the probability in the case of additive skills:
+Team 1 is comprised of player $i$. Team 2 is comprised of players $j$, $k$ and $l$.  Hence, we describe the probability in the case of additive skills as $t_1 = p_i$ and $t_2 = t_j + t_k + t_l$. Accordingly, we have
 \begin{equation}
 p(\mathbf{t} | \mathbf{p} ) = \delta(t_1 - p_i)\delta[t_2 - (t_j + t_k + t_l)].
 \end{equation}
 
-In the case of non-additive skills, this writes 
+In the case of non-additive skills, the average skills are important. Hence, the team performances are  $t_1 = p_i$ and $t_2 = (t_j + t_k + t_l)/3$ and the probability densities are
 \begin{equation}
-p(\mathbf{t} | \mathbf{p} ) = \delta(t_1 - p_i)\delta(t_2 - (t_j + t_k + t_l)/3).
+p(\mathbf{t} | \mathbf{p} ) = \delta(t_1 - p_i)\delta[t_2 - (t_j + t_k + t_l)/3].
 \end{equation}
 
-Since all functions are either assumed as Gaussian or Dirace delta functions, one can now explicitly solve the integrals and obtain $p(\mathbf{l} | \Delta s) $. To obtain the individual update $p(l_i | \Delta s)$, it remains to integrate out all other skill variables $l_j$, $j\neq i$.
+The aim is to calculate the integral (\ref{integral}). All factors are known and, fortunately, they are either Gaussians or Dirace delta functions. Therefore, one can explicitly solve (\ref{integral}) and obtain $p(\mathbf{l} | \Delta s) $ as a new estimate for the player's skills. To obtain the estimate for a single skill $p(l_i | \Delta s)$, it remains to integrate out all other skill variables $l_j$, $j\neq i$.
 
 
 \subsection{Analytical solution}
 
 A general solution can be found in the case of team 1 vs team 2. To define such a solution in a general way, we need the following parameters:
 \begin{itemize}
-\item $n_{rm pl}$ is number of players in own team
-\item $n_{\rm pop}$ is number of players in opponents team
-\item $ n = n_{rm pl} + n_{\rm pop}$ is the overall number of players participating in the game
-\item $n_{\rm max} = \max(n_{rm pl},n_{rm pop})$ is the number of players in the largest team (analogously $n_{\rm min}$.
+\item $n_{\rm pl}$ is number of players in own team
+\item $n_{\rm opp}$ is number of players in opponents team
+\item $ n = n_{\rm pl} + n_{\rm opp}$ is the overall number of players participating in the game
+\item $n_{\rm max} = \max(n_{\rm pl},n_{rm pop})$ is the number of players in the largest team (analogously $n_{\rm min}$.
 \item $\Delta n = n_{\rm max} - n_{\rm min}$ is the difference between the team sizes. 
 \item $\sigma$ and $\mu$ are the standard deviation and mean, respectively, of the player's skill distribution. 
 \item $\sigma_{\rm pl}^2 $ and $\mu_{\rm pl}$ are the sum of the teams variances and mean values, respectively
 \item $\sigma_{\rm opp}^2 $ and $\mu_{\rm opp}$ are the sum of the opponent teams variances and mean values, respectively
 \item again, $\Delta s = $ score(player) - score(opponent)
 \end{itemize}
-
-The update are here presented as precision $\pi = 1/\sigma^2$ and precision adjusted mean $\tau = \mu/\sigma^2$. 
+The new skill estimate is here represented as precision $\pi = 1/\sigma^2$ and precision adjusted mean $\tau = \mu/\sigma^2$. 
 
 
 In the case of additive skills, the update is given as 
