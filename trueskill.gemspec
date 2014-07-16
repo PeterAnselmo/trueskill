@@ -6,14 +6,14 @@ pkg_files += Dir['spec/**/*.rb']
 
 Gem::Specification.new do |s|
   s.name                      = "trueskill"
-  s.version                   = "1.0.0"
+  s.version                   = "1.0.1"
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to?(:required_rubygems_version=)
   s.authors                   = ["Lars Kuhnt"]
   s.date                      = "2011-01-19"
   s.description               = "A ruby library for the trueskill rating system"
   s.email                     = "lars@sauspiel.de"
   s.files                     = pkg_files
-  s.homepage                  = "http://github.com/saulabs/trueskill"
+  s.homepage                  = "http://github.com/raphaelpra/trueskill"
   s.has_rdoc                  = false
   s.require_paths             = ["lib"]
   s.rubygems_version          = "1.3.6"
