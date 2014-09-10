@@ -114,11 +114,11 @@ module Saulabs
       end
   
       def *(other)
-        Distribution.with_precision(self.precision_mean + other.precision_mean, self.precision + other.precision)
+        Distribution.with_precision(self.precision_mean + other.precision_mean, (self.precision - other.precision).abs)
       end
   
       def /(other)
-        Distribution.with_precision(self.precision_mean - other.precision_mean, self.precision - other.precision)
+        Distribution.with_precision(self.precision_mean - other.precision_mean, (self.precision - other.precision).abs)
       end
   
       # absolute difference
