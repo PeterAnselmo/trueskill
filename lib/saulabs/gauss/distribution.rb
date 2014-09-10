@@ -38,7 +38,7 @@ module Saulabs
         end
   
         def with_precision(mean, precision)
-          Distribution.new(mean / precision, Math.sqrt(1 / precision))
+          Distribution.new(mean / precision, Math.sqrt(1 / precision.abs))
         end
       
         def absolute_difference(x, y)
