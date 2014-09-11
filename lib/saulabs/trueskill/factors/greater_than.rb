@@ -31,6 +31,7 @@ module Saulabs
           d_sqrt_c = sqrt_c == 0 ? 0.0 : d / sqrt_c 
           e_sqrt_c = @epsilon * sqrt_c
           denom = 1.0 - Gauss::TruncatedCorrection.w_exceeds_margin(d_sqrt_c, e_sqrt_c)
+          denom = [denom, 0.0001].max
           new_precision = c / denom
           new_precision_mean = (d + sqrt_c * Gauss::TruncatedCorrection.v_exceeds_margin(d_sqrt_c, e_sqrt_c)) / denom
           new_marginal = Gauss::Distribution.with_precision(new_precision_mean, new_precision)

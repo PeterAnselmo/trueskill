@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.name                      = "trueskill"
   s.version                   = "1.0.1"
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to?(:required_rubygems_version=)
-  s.authors                   = ["Lars Kuhnt"]
+  s.authors                   = ["Lars Kuhnt", "Raphael Prasquier", "Aurélien Noce"]
   s.date                      = "2011-01-19"
   s.description               = "A ruby library for the trueskill rating system"
   s.email                     = "lars@sauspiel.de"

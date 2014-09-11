@@ -38,7 +38,7 @@ module Saulabs
         end
   
         def with_precision(mean, precision)
-          Distribution.new(mean / precision, Math.sqrt(1 / precision))
+          Distribution.new(mean / precision, Math.sqrt(1 / precision.abs))
         end
       
         def absolute_difference(x, y)
@@ -114,11 +114,11 @@ module Saulabs
       end
   
       def *(other)
-        Distribution.with_precision(self.precision_mean + other.precision_mean, self.precision + other.precision)
+        Distribution.with_precision(self.precision_mean + other.precision_mean, (self.precision - other.precision).abs)
       end
   
       def /(other)
-        Distribution.with_precision(self.precision_mean - other.precision_mean, self.precision - other.precision)
+        Distribution.with_precision(self.precision_mean - other.precision_mean, (self.precision - other.precision).abs)
       end
   
       # absolute difference
@@ -131,6 +131,7 @@ module Saulabs
       end
     
       def ==(other)
+        return false unless other.kind_of?(self.class)
         self.mean == other.mean && self.variance == other.variance
       end
   
