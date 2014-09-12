@@ -1,4 +1,4 @@
-# -*- encoding : utf-8 -*-
+## -*- encoding : utf-8 -*-
 module Saulabs
   module TrueSkill
 
@@ -88,42 +88,40 @@ module Saulabs
     end
 
     def update_skills
-        #game can be 1vs1, 1vs2, 1vs3 or 2vs2
-        #
+        #Code should work in general case, but has, however, only been tested for the cased 1vs1,1vs2,1vs3,2vs2
+        #for these cases, the analytical solution has been calculated and generalized
 
-        #team1 vs team2
-        # if @skills_additive = true: no averaging of skills and variance
-        # otherwise: mean and skill_deviation averaged over team sizes
-        n_team_1    = @skills_additive ? 1 : @teams[0].size.to_f
-        n_team_2    = @skills_additive ? 1 : @teams[1].size.to_f
+        n_1    = @skills_additive ? 1 : @teams[0].size.to_f
+        n_2    = @skills_additive ? 1 : @teams[1].size.to_f
+        n_max  = [n_1 , n_2].max
+        #n_1, n_2 and n_max are set to 1, if skills_additive is true
+        #this may look a little bit strange, but is a solution of the analytical equation
+        #a pdf with the results will be added
+        n      = @teams[0].size.to_f + @teams[1].size.to_f
+        n_diff = @skills_additive ? n -2 : (@teams[0].size -  @teams[1].size).abs   #if skills_additive = True, n_diff is set to n - 2
+        var_1  = @teams[0].inject(0){|sum,item| sum + item.variance}
+        var_2  = @teams[1].inject(0){|sum,item| sum + item.variance}
+        mean_1 = @teams[0].inject(0){|sum,item| sum + item.mean}
+        mean_2 = @teams[1].inject(0){|sum,item| sum + item.mean}
 
-        n_all       = @teams[0].size.to_f + @teams[1].size.to_f
-        var_team_1  = @teams[0].inject(0){|sum,item| sum + item.variance}
-        var_team_2  = @teams[1].inject(0){|sum,item| sum + item.variance}
-        mean_team_1 = @teams[0].inject(0){|sum,item| sum + item.mean}
-        mean_team_2 = @teams[1].inject(0){|sum,item| sum + item.mean}
-
-
-
-
-        @teams[0].map!{|rating|
-          precision = 1.0 / rating.variance + 1.0/ ( n_all * @beta_squared + 2.0 * @gamma_squared + var_team_2 / n_team_2 + var_team_1 / n_team_1 - rating.variance / n_team_1)
-          precision_mean = rating.mean / rating.variance + (@scores[0] - @scores[1] + n_team_1 * (mean_team_2 / n_team_2 - mean_team_1 / n_team_1 + rating.mean / n_team_1)) / ( n_all * @beta_squared + 2.0 * @gamma_squared + var_team_2 / n_team_2 + var_team_1 / n_team_1 - rating.variance / n_team_1)
+        @teams[0].map{|rating|
+          #calculate rating here:
+          precision = 1.0 / rating.variance + n_1**(-2)/ ( @beta_squared * (2 + n_diff) / n_max + @gamma_squared + var_2 / n_2**2 + (var_1 - rating.variance) / n_1**2)
+          precision_mean = rating.mean / rating.variance + n_1**(-1) * (@scores[0] - @scores[1] + mean_2 / n_2 - (mean_1 - rating.mean) / n_1) /  ( @beta_squared * (2 + n_diff) / n_max + @gamma_squared + var_2 / n_2**2 + (var_1 - rating.variance) / n_1**2)
+          #update ratings:
           partial_updated_precision = rating.precision + rating.activity*( precision - rating.precision)
           partial_updated_precision_mean =  rating.precision_mean + rating.activity * (precision_mean - rating.precision_mean)
-          Rating.new(partial_updated_precision_mean / partial_updated_precision, ( 1.0 / partial_updated_precision + rating.tau_squared)**0.5, rating.activity, rating.tau)
+          rating.replace(Gauss::Distribution.new(partial_updated_precision_mean / partial_updated_precision, (1.0 / partial_updated_precision + rating.tau_squared)**0.5))
         }
-        @teams[1].map!{|rating|
-          precision = 1.0 / rating.variance + 1.0 / (n_all*@beta_squared + 2.0 * @gamma_squared + var_team_1 / n_team_1 + var_team_2 / n_team_2 - rating.variance / n_team_2)
-          precision_mean = rating.mean / rating.variance + (@scores[1] - @scores[0] + n_team_2 * (mean_team_1 / n_team_1 - mean_team_2 / n_team_2 + rating.mean / n_team_2)) / ( n_all * @beta_squared + 2.0 * @gamma_squared + var_team_1 / n_team_1 + var_team_2/n_team_2 - rating.variance / n_team_2)
+        @teams[1].map{|rating|
+          #calculate rating here:
+          precision = 1.0 / rating.variance + n_2**(-2)/ ( @beta_squared * (2 + n_diff) / n_max + @gamma_squared + var_1 / n_1**2 + (var_2 - rating.variance) / n_2**2)
+          precision_mean = rating.mean / rating.variance + n_2**(-1) * (@scores[1] - @scores[0] + mean_1 / n_1 - (mean_2 - rating.mean) / n_2) /  ( @beta_squared * (2 + n_diff) / n_max + @gamma_squared + var_1 / n_1**2 + (var_2 - rating.variance) / n_2**2)
+          #update ratings:
           partial_updated_precision = rating.precision + rating.activity*( precision - rating.precision)
           partial_updated_precision_mean =  rating.precision_mean + rating.activity * (precision_mean - rating.precision_mean)
-          Rating.new(partial_updated_precision_mean / partial_updated_precision, (1.0 / partial_updated_precision + rating.tau_squared)**0.5, rating.activity, rating.tau)
+          rating.replace(Gauss::Distribution.new(partial_updated_precision_mean / partial_updated_precision, (1.0 / partial_updated_precision + rating.tau_squared)**0.5))
         }
-
-
-
-
       end
     end
   end
